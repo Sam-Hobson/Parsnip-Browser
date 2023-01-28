@@ -6,7 +6,7 @@ struct Parser {
     input: String,
 }
 
-struct HtmlParser {
+pub struct HtmlParser {
     p: Parser,
 }
 
@@ -52,8 +52,12 @@ impl Parser {
 
 impl HtmlParser {
     fn parse_tag_name(&mut self) -> String {
+        let _ranges = [('a', 'z'), ('A', 'Z'), ('0', '0')];
+
         self.p.consume_while(|x| {
-            (('a' <= x) && (x <= 'z')) || (('A' <= x) && (x <= 'Z')) || (('0' <= x) && (x <= '9'))
+            _ranges
+                .iter()
+                .fold(false, |acc, (lo, hi)| acc || ((&x >= lo) && (&x <= hi)))
         })
     }
 
