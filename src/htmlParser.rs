@@ -6,6 +6,10 @@ struct Parser {
     input: String,
 }
 
+struct HtmlParser {
+    p: Parser,
+}
+
 impl Parser {
     // Returns the next char
     fn next_char(&self) -> char {
@@ -44,56 +48,58 @@ impl Parser {
     fn consume_whitespace(&mut self) -> () {
         self.consume_while(char::is_whitespace);
     }
+}
 
+impl HtmlParser {
     fn parse_tag_name(&mut self) -> String {
-        self.consume_while(|x| {
+        self.p.consume_while(|x| {
             (('a' <= x) && (x <= 'z')) || (('A' <= x) && (x <= 'Z')) || (('0' <= x) && (x <= '9'))
         })
     }
 
     fn parse_node(&mut self) -> dom::Node {
-        match self.next_char() {
+        match self.p.next_char() {
             '<' => self.parse_element(),
             _ => self.parse_text(),
         }
     }
 
     fn parse_text(&mut self) -> dom::Node {
-        dom::text(self.consume_while(|x| x != '<'))
+        dom::text(self.p.consume_while(|x| x != '<'))
     }
 
     fn parse_element(&mut self) -> dom::Node {
         // Parse the opening tag:
-        assert!(self.consume_char() == '<');
+        assert!(self.p.consume_char() == '<');
         let tag_name = self.parse_tag_name();
         let attributes = self.parse_attributes();
-        assert!(self.consume_char() == '>');
+        assert!(self.p.consume_char() == '>');
 
         // Parse all the children:
         let children = self.parse_nodes();
 
         // Parse closing tag:
-        assert!(self.consume_char() == '<');
-        assert!(self.consume_char() == '/');
+        assert!(self.p.consume_char() == '<');
+        assert!(self.p.consume_char() == '/');
         assert!(self.parse_tag_name() == tag_name);
-        assert!(self.consume_char() == '>');
+        assert!(self.p.consume_char() == '>');
 
         dom::elem(tag_name, attributes, children)
     }
 
     fn parse_attribute(&mut self) -> (String, String) {
         let key = self.parse_tag_name();
-        assert!(self.consume_char() == '=');
+        assert!(self.p.consume_char() == '=');
         let val = self.parse_attribute_value();
 
         return (key, val);
     }
 
     fn parse_attribute_value(&mut self) -> String {
-        let open_quote = self.consume_char();
+        let open_quote = self.p.consume_char();
         assert!(open_quote == '"' || open_quote == '\'');
-        let val = self.consume_while(|x| x != open_quote);
-        assert!(self.consume_char() == open_quote);
+        let val = self.p.consume_while(|x| x != open_quote);
+        assert!(self.p.consume_char() == open_quote);
 
         val
     }
@@ -102,12 +108,10 @@ impl Parser {
         let mut attributes = HashMap::new();
 
         loop {
-            self.consume_whitespace();
-
-            if self.next_char() == '>' {
+            self.p.consume_whitespace();
+            if self.p.next_char() == '>' {
                 break;
             }
-
             let (key, val) = self.parse_attribute();
             attributes.insert(key, val);
         }
@@ -119,15 +123,27 @@ impl Parser {
         let mut nodes = Vec::new();
 
         loop {
-            self.consume_whitespace();
-
-            if self.eof() || self.starts_with("</") {
+            self.p.consume_whitespace();
+            if self.p.eof() || self.p.starts_with("</") {
                 break;
             }
-
             nodes.push(self.parse_node())
         }
 
         nodes
+    }
+
+    pub fn parse(s: String) -> dom::Node {
+        let mut nodes: Vec<dom::Node> = HtmlParser {
+            p: Parser { pos: 0, input: s },
+        }
+        .parse_nodes();
+
+        // If the document contains a root element, return it, else create one.
+        if nodes.len() == 1 {
+            nodes.swap_remove(0)
+        } else {
+            dom::elem(String::from("html"), HashMap::new(), nodes)
+        }
     }
 }
