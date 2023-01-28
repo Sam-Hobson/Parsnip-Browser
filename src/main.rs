@@ -1,5 +1,6 @@
 mod dom;
+mod htmlParser;
 
 fn main() {
-    print!("Hello world");
+    println!("Hello world");
 }
