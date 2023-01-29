@@ -1,66 +1,25 @@
-use super::dom;
 use std::collections::HashMap;
+use crate::parsing::parser::Parser;
+use crate::dom;
 
-struct Parser {
-    pos: usize,
-    input: String,
-}
-
+#[derive(Debug)]
 pub struct HtmlParser {
     p: Parser,
 }
 
-impl Parser {
-    // Returns the next char
-    fn next_char(&self) -> char {
-        self.input[self.pos..].chars().next().unwrap()
-    }
-
-    // Do the chars match the current position in string?
-    fn starts_with(&self, s: &str) -> bool {
-        self.input[self.pos..].starts_with(s)
-    }
-
-    // Is there any input left to process?
-    fn eof(&self) -> bool {
-        self.pos >= self.input.len()
-    }
-
-    fn consume_char(&mut self) -> char {
-        let mut iter = self.input[self.pos..].char_indices();
-        let (_, current) = iter.next().unwrap();
-        let (off, _) = iter.next().unwrap_or((1, ' '));
-        self.pos += off;
-
-        current
-    }
-
-    fn consume_while<F: Fn(char) -> bool>(&mut self, test: F) -> String {
-        let mut res = String::new();
-
-        while !self.eof() && test(self.next_char()) {
-            res.push(self.consume_char());
-        }
-
-        res
-    }
-
-    fn consume_whitespace(&mut self) -> () {
-        self.consume_while(char::is_whitespace);
-    }
-}
-
 impl HtmlParser {
+    /// Parses a tag name, which can contain 'a'-'z', 'A'-'Z', '0'-'9'.
     fn parse_tag_name(&mut self) -> String {
-        let _ranges = [('a', 'z'), ('A', 'Z'), ('0', '0')];
+        let ranges = [('a', 'z'), ('A', 'Z'), ('0', '9')];
 
         self.p.consume_while(|x| {
-            _ranges
+            ranges
                 .iter()
                 .fold(false, |acc, (lo, hi)| acc || ((&x >= lo) && (&x <= hi)))
         })
     }
 
+    /// Parses a node.
     fn parse_node(&mut self) -> dom::Node {
         match self.p.next_char() {
             '<' => self.parse_element(),
@@ -96,7 +55,7 @@ impl HtmlParser {
         assert!(self.p.consume_char() == '=');
         let val = self.parse_attribute_value();
 
-        return (key, val);
+        (key, val)
     }
 
     fn parse_attribute_value(&mut self) -> String {
@@ -138,7 +97,7 @@ impl HtmlParser {
     }
 
     pub fn parse(s: String) -> dom::Node {
-        let mut nodes: Vec<dom::Node> = HtmlParser {
+        let mut nodes = HtmlParser {
             p: Parser { pos: 0, input: s },
         }
         .parse_nodes();

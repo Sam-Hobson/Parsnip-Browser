@@ -2,16 +2,19 @@ use std::collections::HashMap;
 
 pub type AttrMap = HashMap<String, String>;
 
+#[derive(Debug)]
 pub struct Node {
     children: Vec<Node>,
     node_type: NodeType,
 }
 
+#[derive(Debug)]
 pub enum NodeType {
     Text(String),
     Element(ElementData),
 }
 
+#[derive(Debug)]
 pub struct ElementData {
     tag_name: String,
     attributes: AttrMap,
