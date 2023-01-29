@@ -1,4 +1,4 @@
-use crate::css::{Rule, Selector, SimpleSelector, Declaration, Value};
+use crate::css::{Declaration, Rule, Selector, SimpleSelector, Value, Unit, Colour};
 use crate::parsing::parser::{valid_standard_char, Parser};
 
 pub struct CssParser {
@@ -80,10 +80,50 @@ impl CssParser {
 
         Declaration {
             name: key,
-            value: value
+            value: value,
         }
     }
 
     fn parse_value(&mut self) -> Value {
+        match self.p.next_char() {
+            '0'..='9' => self.parse_length(),
+            '#' => self.parse_colour(),
+            _ => Value::Keyword(self.p.parse_standard_word()),
+        }
+    }
+
+    fn parse_length(&mut self) -> Value {
+        Value::Length(self.parse_float(), self.parse_unit())
+    }
+
+    fn parse_float(&mut self) -> f32 {
+        let s = self.p.consume_while(|c| match c {
+            '0'..='9' | '.' => true,
+            _ => false,
+        });
+        s.parse().unwrap()
+    }
+
+    fn parse_unit(&mut self) -> Unit {
+        match &*self.p.parse_standard_word().to_lowercase() {
+            "px" => Unit::Px,
+            _ => panic!("Unrecognised unit!")
+        }
+    }
+
+    fn parse_colour(&mut self) -> Value {
+        assert_eq!(self.p.consume_char(), '#');
+        Value::ColourValue(Colour {
+            r: self.parse_hex_pair(),
+            g: self.parse_hex_pair(),
+            b: self.parse_hex_pair(),
+            a: 255 })
+    }
+
+    /// Parse two hexadecimal digits.
+    fn parse_hex_pair(&mut self) -> u8 {
+        let s = &self.p.input[self.p.pos .. self.p.pos + 2];
+        self.p.pos += 2;
+        u8::from_str_radix(s, 16).unwrap()
     }
 }
