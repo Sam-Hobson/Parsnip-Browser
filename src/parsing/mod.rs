@@ -1,3 +1,3 @@
 pub mod html_parser;
-pub mod parser;
+mod parser;
 pub mod css_parser;

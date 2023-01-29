@@ -46,5 +46,17 @@ impl Parser {
     pub fn consume_whitespace(&mut self) {
         self.consume_while(char::is_whitespace);
     }
+
+    /// Parses a tag name, which can contain the characters allowed in [valid_standard_char].
+    pub fn parse_standard_word(&mut self) -> String {
+        self.consume_while(valid_standard_char)
+    }
+
 }
 
+pub fn valid_standard_char(c: char) -> bool {
+    let ranges = [('a', 'z'), ('A', 'Z'), ('0', '9')];
+    ranges
+        .iter()
+        .fold(false, |acc, (lo, hi)| acc || ((&c >= lo) && (&c <= hi)))
+}

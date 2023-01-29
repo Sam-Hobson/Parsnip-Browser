@@ -8,17 +8,6 @@ pub struct HtmlParser {
 }
 
 impl HtmlParser {
-    /// Parses a tag name, which can contain 'a'-'z', 'A'-'Z', '0'-'9'.
-    fn parse_tag_name(&mut self) -> String {
-        let ranges = [('a', 'z'), ('A', 'Z'), ('0', '9')];
-
-        self.p.consume_while(|x| {
-            ranges
-                .iter()
-                .fold(false, |acc, (lo, hi)| acc || ((&x >= lo) && (&x <= hi)))
-        })
-    }
-
     /// Parses a node.
     fn parse_node(&mut self) -> dom::Node {
         match self.p.next_char() {
@@ -34,7 +23,7 @@ impl HtmlParser {
     fn parse_element(&mut self) -> dom::Node {
         // Parse the opening tag:
         assert!(self.p.consume_char() == '<');
-        let tag_name = self.parse_tag_name();
+        let tag_name = self.p.parse_standard_word();
         let attributes = self.parse_attributes();
         assert!(self.p.consume_char() == '>');
 
@@ -44,14 +33,14 @@ impl HtmlParser {
         // Parse closing tag:
         assert!(self.p.consume_char() == '<');
         assert!(self.p.consume_char() == '/');
-        assert!(self.parse_tag_name() == tag_name);
+        assert!(self.p.parse_standard_word() == tag_name);
         assert!(self.p.consume_char() == '>');
 
         dom::elem(tag_name, attributes, children)
     }
 
     fn parse_attribute(&mut self) -> (String, String) {
-        let key = self.parse_tag_name();
+        let key = self.p.parse_standard_word();
         assert!(self.p.consume_char() == '=');
         let val = self.parse_attribute_value();
 

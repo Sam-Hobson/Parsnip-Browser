@@ -1,4 +1,4 @@
-use crate::css::{Rule, Selector, SimpleSelector, Declaration, Value};
+use crate::css::{SimpleSelector, Rule, Selector};
 use crate::parsing::parser::{valid_standard_char, Parser};
 
 pub struct CssParser {
@@ -38,9 +38,9 @@ impl CssParser {
     }
 
     fn parse_rule(&mut self) -> Rule {
-        Rule {
+        Rule{
             selectors: self.parse_selectors(),
-            declarations: self.parse_declarations(),
+            declarations: self.parse_declarations()
         }
     }
 
@@ -52,38 +52,8 @@ impl CssParser {
             self.p.consume_whitespace();
 
             match self.p.next_char() {
-                ',' => {
-                    self.p.consume_char();
-                    self.p.consume_whitespace();
-                }
-                '{' => break,
-                c => panic!("Unexpected character {} in selector list", c),
+                ',' => {self.p.consume_char(); self.p.consume_whitespace();}
             }
         }
-
-        selectors.sort_by(|x, y| y.specificity().cmp(&x.specificity()));
-        return selectors;
-    }
-
-    fn parse_declarations(&mut self) -> Vec<Declaration> {
-        let mut declarations = Vec::new();
-    }
-
-    fn parse_declaration(&mut self) -> Declaration {
-        let key = self.p.parse_standard_word();
-        self.p.consume_whitespace();
-        assert_eq!(self.p.consume_char(), ':');
-        self.p.consume_whitespace();
-        let value = self.parse_value();
-        self.p.consume_whitespace();
-        assert_eq!(self.p.consume_char(), ';');
-
-        Declaration {
-            name: key,
-            value: value
-        }
-    }
-
-    fn parse_value(&mut self) -> Value {
     }
 }
