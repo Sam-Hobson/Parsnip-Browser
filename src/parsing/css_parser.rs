@@ -1,4 +1,4 @@
-use crate::css::{Declaration, Rule, Selector, SimpleSelector, Value, Unit, Colour};
+use crate::css::{Colour, Declaration, Rule, Selector, SimpleSelector, Unit, Value};
 use crate::parsing::parser::{valid_standard_char, Parser};
 
 pub struct CssParser {
@@ -66,7 +66,17 @@ impl CssParser {
     }
 
     fn parse_declarations(&mut self) -> Vec<Declaration> {
+        assert_eq!(self.p.consume_char(), '{');
         let mut declarations = Vec::new();
+        loop {
+            self.p.consume_whitespace();
+            if self.p.next_char() == '}' {
+                self.p.consume_char();
+                break;
+            }
+            declarations.push(self.parse_declaration());
+        }
+        declarations
     }
 
     fn parse_declaration(&mut self) -> Declaration {
@@ -74,13 +84,13 @@ impl CssParser {
         self.p.consume_whitespace();
         assert_eq!(self.p.consume_char(), ':');
         self.p.consume_whitespace();
-        let value = self.parse_value();
+        let val = self.parse_value();
         self.p.consume_whitespace();
         assert_eq!(self.p.consume_char(), ';');
 
         Declaration {
             name: key,
-            value: value,
+            value: val,
         }
     }
 
@@ -97,17 +107,14 @@ impl CssParser {
     }
 
     fn parse_float(&mut self) -> f32 {
-        let s = self.p.consume_while(|c| match c {
-            '0'..='9' | '.' => true,
-            _ => false,
-        });
+        let s = self.p.consume_while(|c| matches!(c, '0'..='9' | '.'));
         s.parse().unwrap()
     }
 
     fn parse_unit(&mut self) -> Unit {
         match &*self.p.parse_standard_word().to_lowercase() {
             "px" => Unit::Px,
-            _ => panic!("Unrecognised unit!")
+            _ => panic!("Unrecognised unit!"),
         }
     }
 
@@ -117,12 +124,13 @@ impl CssParser {
             r: self.parse_hex_pair(),
             g: self.parse_hex_pair(),
             b: self.parse_hex_pair(),
-            a: 255 })
+            a: 255,
+        })
     }
 
     /// Parse two hexadecimal digits.
     fn parse_hex_pair(&mut self) -> u8 {
-        let s = &self.p.input[self.p.pos .. self.p.pos + 2];
+        let s = &self.p.input[self.p.pos..self.p.pos + 2];
         self.p.pos += 2;
         u8::from_str_radix(s, 16).unwrap()
     }

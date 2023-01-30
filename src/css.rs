@@ -3,8 +3,8 @@ pub struct Stylesheet {
 }
 
 pub struct Rule {
-    selectors: Vec<Selector>,
-    declarations: Vec<Declaration>,
+    pub selectors: Vec<Selector>,
+    pub declarations: Vec<Declaration>,
 }
 
 pub enum Selector {
@@ -18,8 +18,8 @@ pub struct SimpleSelector {
 }
 
 pub struct Declaration {
-    name: String,
-    value: Value,
+    pub name: String,
+    pub value: Value,
 }
 
 pub enum Value {
@@ -33,10 +33,10 @@ pub enum Unit {
 }
 
 pub struct Colour {
-    r: u8,
-    g: u8,
-    b: u8,
-    a: u8,
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+    pub a: u8,
 }
 
 pub type Specificity = (usize, usize, usize);
