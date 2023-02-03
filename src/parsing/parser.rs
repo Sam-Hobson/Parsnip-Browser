@@ -51,7 +51,6 @@ impl Parser {
     pub fn parse_standard_word(&mut self) -> String {
         self.consume_while(valid_standard_char)
     }
-
 }
 
 pub fn valid_standard_char(c: char) -> bool {
