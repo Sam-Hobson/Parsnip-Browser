@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use crate::dom::Node;
 
 pub struct Stylesheet {
-    rules: Vec<Rule>,
+    pub rules: Vec<Rule>,
 }
 
 pub struct Rule {
@@ -11,8 +11,8 @@ pub struct Rule {
 }
 
 pub struct MatchedRule<'a> {
-    specificity: Specificity,
-    rule: &'a Rule,
+    pub specificity: Specificity,
+    pub rule: &'a Rule,
 }
 
 impl<'a> MatchedRule<'a> {
@@ -37,7 +37,7 @@ pub struct Declaration {
 }
 
 // Map CSS properties to values.
-type PropertyMap = HashMap<String, Value>;
+pub type PropertyMap = HashMap<String, Value>;
 
 // Hold's a nodes style data (and their children).
 // # TODO: Merge styles into Node field (possibly).
@@ -47,16 +47,19 @@ struct StyleNode<'a> {
     children: Vec<StyleNode<'a>>,
 }
 
+#[derive(Debug, Clone)]
 pub enum Value {
     Keyword(String),
     Length(f32, Unit),
     ColourValue(Colour),
 }
 
+#[derive(Debug, Clone)]
 pub enum Unit {
     Px,
 }
 
+#[derive(Debug, Clone)]
 pub struct Colour {
     pub r: u8,
     pub g: u8,

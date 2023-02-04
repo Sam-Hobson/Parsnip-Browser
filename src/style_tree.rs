@@ -1,4 +1,6 @@
-use crate::css::{Rule, Selector, SimpleSelector, MatchedRule};
+use std::collections::HashMap;
+
+use crate::css::{MatchedRule, PropertyMap, Rule, Selector, SimpleSelector, Stylesheet};
 use crate::dom::ElementData;
 
 fn matches(elem: &ElementData, selector: &Selector) -> bool {
@@ -33,4 +35,27 @@ fn match_rule<'a>(elem: &ElementData, rule: &'a Rule) -> Option<MatchedRule<'a>>
         .iter()
         .find(|s| matches(elem, s))
         .map(|s| MatchedRule::new(s.specificity(), rule))
+}
+
+fn matching_rules<'a>(elem: &ElementData, stylesheet: &'a Stylesheet) -> Vec<MatchedRule<'a>> {
+    stylesheet
+        .rules
+        .iter()
+        .filter_map(|r| match_rule(elem, r))
+        .collect()
+}
+
+fn specified_values(elem: &ElementData, stylesheet: &Stylesheet) -> PropertyMap {
+    let mut values = HashMap::new();
+    let mut rules = matching_rules(elem, stylesheet);
+
+    rules.sort_by(|a, b| a.specificity.cmp(&b.specificity));
+
+    for matched_rule in rules {
+        for declaration in &matched_rule.rule.declarations {
+            values.insert(declaration.name.clone(), declaration.value.clone());
+        }
+    }
+
+    values
 }
