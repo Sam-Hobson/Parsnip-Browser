@@ -41,10 +41,10 @@ pub type PropertyMap = HashMap<String, Value>;
 
 // Hold's a nodes style data (and their children).
 // # TODO: Merge styles into Node field (possibly).
-struct StyleNode<'a> {
-    node: &'a Node, // DOM node
-    specified_values: PropertyMap,
-    children: Vec<StyleNode<'a>>,
+pub struct StyledNode<'a> {
+    pub node: &'a Node, // DOM node
+    pub specified_values: PropertyMap,
+    pub children: Vec<StyledNode<'a>>,
 }
 
 #[derive(Debug, Clone)]

@@ -4,8 +4,8 @@ pub type AttrMap = HashMap<String, String>;
 
 #[derive(Debug)]
 pub struct Node {
-    children: Vec<Node>,
-    node_type: NodeType,
+    pub children: Vec<Node>,
+    pub node_type: NodeType,
 }
 
 #[derive(Debug)]

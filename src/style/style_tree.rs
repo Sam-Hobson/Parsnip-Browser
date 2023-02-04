@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
-use crate::style::css::{MatchedRule, PropertyMap, Rule, Selector, SimpleSelector, Stylesheet};
-use crate::dom::ElementData;
+use crate::dom::{ElementData, Node, NodeType};
+use crate::style::css::{
+    MatchedRule, PropertyMap, Rule, Selector, SimpleSelector, StyledNode, Stylesheet,
+};
 
 fn matches(elem: &ElementData, selector: &Selector) -> bool {
     match *selector {
@@ -46,7 +48,7 @@ fn matching_rules<'a>(elem: &ElementData, stylesheet: &'a Stylesheet) -> Vec<Mat
 }
 
 fn specified_values(elem: &ElementData, stylesheet: &Stylesheet) -> PropertyMap {
-    let mut values = HashMap::new();
+    let mut values = PropertyMap::new();
     let mut rules = matching_rules(elem, stylesheet);
 
     rules.sort_by(|a, b| a.specificity.cmp(&b.specificity));
@@ -58,4 +60,20 @@ fn specified_values(elem: &ElementData, stylesheet: &Stylesheet) -> PropertyMap 
     }
 
     values
+}
+
+// Apply a stylesheet to an entire DOM tree, returning a StyledNode tree.
+pub fn style_tree<'a>(root: &'a Node, stylesheet: &'a Stylesheet) -> StyledNode<'a> {
+    StyledNode {
+        node: root,
+        specified_values: match root.node_type {
+            NodeType::Element(ref elem) => specified_values(elem, stylesheet),
+            NodeType::Text(_) => PropertyMap::new(),
+        },
+        children: root
+            .children
+            .iter()
+            .map(|child| style_tree(child, stylesheet))
+            .collect(),
+    }
 }
