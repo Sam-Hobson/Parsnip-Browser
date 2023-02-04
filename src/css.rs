@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use crate::dom::Node;
+
 pub struct Stylesheet {
     rules: Vec<Rule>,
 }
@@ -5,6 +8,17 @@ pub struct Stylesheet {
 pub struct Rule {
     pub selectors: Vec<Selector>,
     pub declarations: Vec<Declaration>,
+}
+
+pub struct MatchedRule<'a> {
+    specificity: Specificity,
+    rule: &'a Rule,
+}
+
+impl<'a> MatchedRule<'a> {
+    pub fn new(specificity: Specificity, rule: &'a Rule) -> Self {
+        Self { specificity, rule }
+    }
 }
 
 pub enum Selector {
@@ -20,6 +34,17 @@ pub struct SimpleSelector {
 pub struct Declaration {
     pub name: String,
     pub value: Value,
+}
+
+// Map CSS properties to values.
+type PropertyMap = HashMap<String, Value>;
+
+// Hold's a nodes style data (and their children).
+// # TODO: Merge styles into Node field (possibly).
+struct StyleNode<'a> {
+    node: &'a Node, // DOM node
+    specified_values: PropertyMap,
+    children: Vec<StyleNode<'a>>,
 }
 
 pub enum Value {
