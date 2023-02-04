@@ -1,7 +1,6 @@
 mod dom;
 mod parsing;
-mod css;
-mod style_tree;
+mod style;
 
 use crate::parsing::html_parser::HtmlParser;
 

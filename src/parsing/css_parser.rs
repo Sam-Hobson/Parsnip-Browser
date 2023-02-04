@@ -1,4 +1,4 @@
-use crate::css::{Colour, Declaration, Rule, Selector, SimpleSelector, Unit, Value};
+use crate::style::css::{Colour, Declaration, Rule, Selector, SimpleSelector, Unit, Value};
 use crate::parsing::parser::{valid_standard_char, Parser};
 
 pub struct CssParser {
