@@ -17,7 +17,7 @@ pub enum NodeType {
 #[derive(Debug)]
 pub struct ElementData {
     pub tag_name: String,
-    attributes: AttrMap,
+    pub attributes: AttrMap,
 }
 
 pub fn text(data: String) -> Node {
@@ -29,10 +29,10 @@ pub fn text(data: String) -> Node {
 
 pub fn elem(name: String, attributes: AttrMap, children: Vec<Node>) -> Node {
     Node {
-        children: children,
+        children,
         node_type: NodeType::Element(ElementData {
             tag_name: name,
-            attributes: attributes,
+            attributes,
         }),
     }
 }
