@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use crate::dom::Node;
+use crate::box_model::Display;
 
 pub struct Stylesheet {
     pub rules: Vec<Rule>,
@@ -39,14 +40,6 @@ pub struct Declaration {
 // Map CSS properties to values.
 pub type PropertyMap = HashMap<String, Value>;
 
-// Hold's a nodes style data (and their children).
-// # TODO: Merge styles into Node field (possibly).
-pub struct StyledNode<'a> {
-    pub node: &'a Node, // DOM node
-    pub specified_values: PropertyMap,
-    pub children: Vec<StyledNode<'a>>,
-}
-
 #[derive(Debug, Clone)]
 pub enum Value {
     Keyword(String),
@@ -65,6 +58,34 @@ pub struct Colour {
     pub g: u8,
     pub b: u8,
     pub a: u8,
+}
+
+// Hold's a nodes style data (and their children).
+// # TODO: Merge styles into Node field (possibly).
+pub struct StyledNode<'a> {
+    pub node: &'a Node, // DOM node
+    pub specified_values: PropertyMap,
+    pub children: Vec<StyledNode<'a>>,
+}
+
+/// TODO: Fix this garbage
+impl StyledNode {
+    pub fn value(&self, name: &str) -> Option<Value> {
+        self.specified_values.get(name).map(|v| v.clone())
+    }
+
+    pub fn display(&self) -> Display {
+        match self.value("display") {
+            Some(Value::Keyword(v)) => {
+                match v.as_str() {
+                    "block" => Display::Block,
+                    "none" => Display::None,
+                    _ => Display::Inline
+                }
+            }
+            _ => Display::Inline
+        }
+    }
 }
 
 pub type Specificity = (usize, usize, usize);

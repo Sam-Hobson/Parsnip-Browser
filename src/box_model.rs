@@ -37,3 +37,9 @@ enum BoxType<'a> {
     InlineNode(&'a StyledNode<'a>),
     AnonymousBlock,
 }
+
+pub enum Display {
+    Inline,
+    Block,
+    None
+}
