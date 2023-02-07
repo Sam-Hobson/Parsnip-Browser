@@ -62,14 +62,16 @@ impl ElementData {
 /// Formats a [Node] as a html tree of elements.
 impl fmt::Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fn start_tag(n: &Node, indent_width: usize, num_indents: usize) -> String {
+        /// Creates a string of the opening tag for the Node.
+        fn opening_tag(n: &Node, indent_width: usize, num_indents: usize) -> String {
             let mut res = " ".repeat(indent_width).repeat(num_indents);
             res.push_str(n.node_type.to_string().as_str());
             res.push('\n');
             res
         }
 
-        fn end_tag(n: &Node, indent_width: usize, num_indents: usize) -> String {
+        /// Creates a string of the closing tag for the node.
+        fn closing_tag(n: &Node, indent_width: usize, num_indents: usize) -> String {
             let mut res = String::new();
             match &n.node_type {
                 NodeType::Text(_) => res,
@@ -83,16 +85,17 @@ impl fmt::Display for Node {
             }
         }
 
+        /// Creates a string representation of the node.
         fn self_to_str(n: &Node, num_indents: usize) -> String {
             let indent_width = 4;
 
-            let mut res = start_tag(n, indent_width, num_indents);
+            let mut res = opening_tag(n, indent_width, num_indents);
 
             for c in &n.children {
                 res.push_str(self_to_str(c, num_indents + 1).as_str());
             }
 
-            res.push_str(end_tag(n, indent_width, num_indents).as_str());
+            res.push_str(closing_tag(n, indent_width, num_indents).as_str());
             res
         }
 

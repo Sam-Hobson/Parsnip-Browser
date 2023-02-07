@@ -15,6 +15,14 @@ impl Parser {
         self.input[self.pos..].starts_with(s)
     }
 
+    pub fn string(&self, s: &str) -> bool {
+        if self.starts_with(s) {
+            self.pos += s.len();
+            return true
+        }
+        false
+    }
+
     /// Is there any input left to process?
     pub fn eof(&self) -> bool {
         self.pos >= self.input.len()
@@ -49,11 +57,32 @@ impl Parser {
 
     /// Parses a tag name, which can contain the characters allowed in [valid_standard_char].
     pub fn parse_standard_word(&mut self) -> String {
-        self.consume_while(valid_standard_char)
+        self.consume_while(standard_char)
+    }
+
+    pub fn parse_between(&mut self, c: char) -> String {
+        assert!(self.next_char() == c);
+        self.consume_char();
+        let res = self.consume_while(|x| x != c);
+        assert!(self.next_char() == c);
+        self.consume_char();
+
+        res
+    }
+
+    pub fn parse_between_cond<F: Fn(char) -> bool>(&mut self, f: F) -> String {
+        assert!(f(self.next_char()));
+        self.consume_char();
+        let res = self.consume_while(|x| !f(x));
+        assert!(f(self.next_char()));
+        self.consume_char();
+
+        res
     }
 }
 
-pub fn valid_standard_char(c: char) -> bool {
+/// Check if a character is in the range 'a'-'z', 'A'-'Z', or '0'-'9'.
+pub fn standard_char(c: char) -> bool {
     let ranges = [('a', 'z'), ('A', 'Z'), ('0', '9')];
     ranges
         .iter()

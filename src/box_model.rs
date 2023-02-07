@@ -12,6 +12,8 @@ struct Dimensions {
     margin: EdgeSizes,
 }
 
+/// Rect is short for Rectangle :)
+/// It is a cartesian shape :)
 struct Rect {
     x: f32,
     y: f32,
@@ -26,18 +28,21 @@ struct EdgeSizes {
     bottom: f32,
 }
 
+/// Represents a "box" in the dom box model.
 struct LayoutBox<'a> {
     dims: Dimensions,
     box_type: BoxType<'a>,
     children: Vec<LayoutBox<'a>>,
 }
 
+/// How should the box formatted?
 enum BoxType<'a> {
     BlockNode(&'a StyledNode<'a>),
     InlineNode(&'a StyledNode<'a>),
     AnonymousBlock,
 }
 
+/// The values for the display property.
 pub enum Display {
     Inline,
     Block,

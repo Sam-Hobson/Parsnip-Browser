@@ -1,4 +1,4 @@
-use crate::parsing::parser::{valid_standard_char, Parser};
+use crate::parsing::parser::{standard_char, Parser};
 use crate::style::css::{Colour, Declaration, Rule, Selector, SimpleSelector, Unit, Value};
 
 pub struct CssParser {
@@ -27,7 +27,7 @@ impl CssParser {
                 '*' => {
                     self.p.consume_char();
                 }
-                c if valid_standard_char(c) => {
+                c if standard_char(c) => {
                     selector.tag_name = Some(self.p.parse_standard_word());
                 }
                 _ => break,

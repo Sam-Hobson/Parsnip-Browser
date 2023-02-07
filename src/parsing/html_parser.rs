@@ -16,10 +16,12 @@ impl HtmlParser {
         }
     }
 
+    /// Parse text until a tag appears.
     fn parse_text(&mut self) -> dom::Node {
         dom::text(self.p.consume_while(|x| x != '<'))
     }
 
+    /// Parse an element (tag).
     fn parse_element(&mut self) -> dom::Node {
         // Parse the opening tag:
         assert!(self.p.consume_char() == '<');
@@ -39,6 +41,7 @@ impl HtmlParser {
         dom::elem(tag_name, attributes, children)
     }
 
+    /// Parses an attribute of an element/tag.
     fn parse_attribute(&mut self) -> (String, String) {
         let key = self.p.parse_standard_word();
         assert!(self.p.consume_char() == '=');
@@ -47,6 +50,7 @@ impl HtmlParser {
         (key, val)
     }
 
+    /// Parses an attribute value.
     fn parse_attribute_value(&mut self) -> String {
         let open_quote = self.p.consume_char();
         assert!(open_quote == '"' || open_quote == '\'');
