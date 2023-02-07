@@ -51,6 +51,7 @@ impl HtmlParser {
     }
 
     /// Parses an attribute value.
+    /// TODO: Replace with parse_between
     fn parse_attribute_value(&mut self) -> String {
         let open_quote = self.p.consume_char();
         assert!(open_quote == '"' || open_quote == '\'');
@@ -60,6 +61,7 @@ impl HtmlParser {
         val
     }
 
+    /// Parses multiple attributes.
     fn parse_attributes(&mut self) -> dom::AttrMap {
         let mut attributes = HashMap::new();
 
@@ -75,6 +77,7 @@ impl HtmlParser {
         attributes
     }
 
+    /// Parse all nodes in the DOM.
     fn parse_nodes(&mut self) -> Vec<dom::Node> {
         let mut nodes = Vec::new();
 
@@ -89,6 +92,7 @@ impl HtmlParser {
         nodes
     }
 
+    /// Parse a [String] of html code.
     pub fn parse(s: String) -> dom::Node {
         let mut nodes = HtmlParser {
             p: Parser { pos: 0, input: s },

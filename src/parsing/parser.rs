@@ -60,21 +60,12 @@ impl Parser {
         self.consume_while(standard_char)
     }
 
+    /// Parse a string that is between two characters
     pub fn parse_between(&mut self, c: char) -> String {
         assert!(self.next_char() == c);
         self.consume_char();
         let res = self.consume_while(|x| x != c);
         assert!(self.next_char() == c);
-        self.consume_char();
-
-        res
-    }
-
-    pub fn parse_between_cond<F: Fn(char) -> bool>(&mut self, f: F) -> String {
-        assert!(f(self.next_char()));
-        self.consume_char();
-        let res = self.consume_while(|x| !f(x));
-        assert!(f(self.next_char()));
         self.consume_char();
 
         res

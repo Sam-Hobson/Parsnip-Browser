@@ -2,10 +2,13 @@ use std::collections::HashMap;
 use crate::dom::Node;
 use crate::box_model::Display;
 
+/// Represents a set of styling rules. (Aka, an entires stylesheet or css file).
 pub struct Stylesheet {
     pub rules: Vec<Rule>,
 }
 
+/// A rule is a set of declarations(characteristics) with a specifier that
+/// is targeted. (Eg: div .salad {color: blue;})
 pub struct Rule {
     pub selectors: Vec<Selector>,
     pub declarations: Vec<Declaration>,
