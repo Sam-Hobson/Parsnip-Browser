@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::dom::{ElementData, Node, NodeType};
 use crate::style::css::{
     MatchedRule, PropertyMap, Rule, Selector, SimpleSelector, StyledNode, Stylesheet,

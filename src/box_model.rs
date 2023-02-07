@@ -43,3 +43,8 @@ pub enum Display {
     Block,
     None
 }
+
+/// Build a tree of [LayoutBox]s. Not performing any calculations yet.
+fn build_layout_tree<'a>(style_node: &'a StyledNode) -> LayoutBox<'a> {
+
+}

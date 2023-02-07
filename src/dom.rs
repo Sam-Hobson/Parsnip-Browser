@@ -3,24 +3,29 @@ use std::fmt;
 
 pub type AttrMap = HashMap<String, String>;
 
+/// Represents an element (tag) within html code.
 #[derive(Debug)]
 pub struct Node {
     pub children: Vec<Node>,
     pub node_type: NodeType,
 }
 
+/// A node can be either an element (like a html tag), or text.
 #[derive(Debug)]
 pub enum NodeType {
     Text(String),
     Element(ElementData),
 }
 
+/// Holds the data of an element. Eg: <div class="salad"> has
+/// [ElementData::tag_name] of div, and [ElementData::attributes] of class: salad.
 #[derive(Debug)]
 pub struct ElementData {
     pub tag_name: String,
     attributes: AttrMap,
 }
 
+/// Creates a Text node from a string.
 pub fn text(data: String) -> Node {
     Node {
         children: Vec::new(),
@@ -28,6 +33,7 @@ pub fn text(data: String) -> Node {
     }
 }
 
+/// Creates an element node from a tag name, attributes, and it's children.
 pub fn elem(name: String, attributes: AttrMap, children: Vec<Node>) -> Node {
     Node {
         children,
@@ -39,10 +45,12 @@ pub fn elem(name: String, attributes: AttrMap, children: Vec<Node>) -> Node {
 }
 
 impl ElementData {
+    /// Returns the Some id of the element, or None.
     pub fn id(&self) -> Option<&String> {
         self.attributes.get("id")
     }
 
+    /// Returns a [HashSet] of the classes of the element.
     pub fn classes(&self) -> HashSet<&str> {
         match self.attributes.get("class") {
             Some(classes) => classes.split(' ').collect(),
