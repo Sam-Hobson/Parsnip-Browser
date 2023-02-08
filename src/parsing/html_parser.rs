@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use crate::parsing::parser::Parser;
 use crate::dom;
 
+/// A parser for html.
 #[derive(Debug)]
 pub struct HtmlParser {
     p: Parser,

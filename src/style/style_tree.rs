@@ -3,12 +3,14 @@ use crate::style::css::{
     MatchedRule, PropertyMap, Rule, Selector, SimpleSelector, StyledNode, Stylesheet,
 };
 
+/// Returns whether a [Selector] matches a given element.
 fn matches(elem: &ElementData, selector: &Selector) -> bool {
     match *selector {
         Selector::Simple(ref simple_selector) => matches_simple_selector(elem, simple_selector),
     }
 }
 
+/// Returns whether a [SimpleSelector] matches a given element.
 fn matches_simple_selector(elem: &ElementData, selector: &SimpleSelector) -> bool {
     if selector.tag_name.iter().any(|x| *x != elem.tag_name) {
         return false;
@@ -37,6 +39,7 @@ fn match_rule<'a>(elem: &ElementData, rule: &'a Rule) -> Option<MatchedRule<'a>>
         .map(|s| MatchedRule::new(s.specificity(), rule))
 }
 
+/// Returns the [MatchedRule]s that match a given element within a given [Stylesheet].
 fn matching_rules<'a>(elem: &ElementData, stylesheet: &'a Stylesheet) -> Vec<MatchedRule<'a>> {
     stylesheet
         .rules
@@ -45,12 +48,15 @@ fn matching_rules<'a>(elem: &ElementData, stylesheet: &'a Stylesheet) -> Vec<Mat
         .collect()
 }
 
+/// Returns a map of properties for a given element, sorted in order of [specificity].
 fn specified_values(elem: &ElementData, stylesheet: &Stylesheet) -> PropertyMap {
     let mut values = PropertyMap::new();
     let mut rules = matching_rules(elem, stylesheet);
 
+    // Most strongly specified rules go first.
     rules.sort_by(|a, b| a.specificity.cmp(&b.specificity));
 
+    // Copy declarations into output.
     for matched_rule in rules {
         for declaration in &matched_rule.rule.declarations {
             values.insert(declaration.name.clone(), declaration.value.clone());

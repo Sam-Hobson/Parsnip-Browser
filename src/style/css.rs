@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use crate::dom::Node;
 use crate::box_model::Display;
+use crate::dom::Node;
+use std::collections::HashMap;
 
 /// Represents a set of styling rules. (Aka, an entires stylesheet or css file).
 pub struct Stylesheet {
@@ -14,6 +14,7 @@ pub struct Rule {
     pub declarations: Vec<Declaration>,
 }
 
+/// A rule stored with it s assosiated specificity.
 pub struct MatchedRule<'a> {
     pub specificity: Specificity,
     pub rule: &'a Rule,
@@ -25,16 +26,20 @@ impl<'a> MatchedRule<'a> {
     }
 }
 
+/// Different types of selectors for a css rule. TODO: More detail
 pub enum Selector {
     Simple(SimpleSelector),
 }
 
+/// A simple selector for a rule.
 pub struct SimpleSelector {
     pub tag_name: Option<String>,
     pub id: Option<String>,
     pub class: Vec<String>,
 }
 
+/// A key-value pair of a css attribute. Eg: display: none;
+/// TODO: Link
 pub struct Declaration {
     pub name: String,
     pub value: Value,
@@ -43,6 +48,7 @@ pub struct Declaration {
 // Map CSS properties to values.
 pub type PropertyMap = HashMap<String, Value>;
 
+/// What type of value is accepted for a declaration?
 #[derive(Debug, Clone)]
 pub enum Value {
     Keyword(String),
@@ -55,6 +61,7 @@ pub enum Unit {
     Px,
 }
 
+/// Colour in rgba
 #[derive(Debug, Clone)]
 pub struct Colour {
     pub r: u8,
@@ -77,20 +84,20 @@ impl StyledNode<'_> {
         self.specified_values.get(name).cloned()
     }
 
+    /// Returns the "display" attribute of the [StyledNode].
     pub fn display(&self) -> Display {
         match self.value("display") {
-            Some(Value::Keyword(v)) => {
-                match v.as_str() {
-                    "block" => Display::Block,
-                    "none" => Display::None,
-                    _ => Display::Inline
-                }
-            }
-            _ => Display::Inline
+            Some(Value::Keyword(v)) => match v.as_str() {
+                "block" => Display::Block,
+                "none" => Display::None,
+                _ => Display::Inline,
+            },
+            _ => Display::Inline,
         }
     }
 }
 
+/// Labels the specifier for a node. Stores id count, class count, and then tag count.
 pub type Specificity = (usize, usize, usize);
 
 impl Selector {
