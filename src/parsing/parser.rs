@@ -15,7 +15,7 @@ impl Parser {
         self.input[self.pos..].starts_with(s)
     }
 
-    pub fn string(&self, s: &str) -> bool {
+    pub fn string(&mut self, s: &str) -> bool {
         if self.starts_with(s) {
             self.pos += s.len();
             return true

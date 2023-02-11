@@ -57,12 +57,12 @@ impl CssParser {
                     self.p.consume_whitespace();
                 }
                 '{' => break,
-                c => panic!("Unexpected character {} in selector list", c),
+                c => panic!("Unexpected character {c} in selector list"),
             }
         }
 
-        selectors.sort_by(|x, y| y.specificity().cmp(&x.specificity()));
-        return selectors;
+        selectors.sort_by_key(|x| std::cmp::Reverse(x.specificity()));
+        selectors
     }
 
     fn parse_declarations(&mut self) -> Vec<Declaration> {
