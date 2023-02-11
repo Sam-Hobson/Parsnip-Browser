@@ -79,7 +79,7 @@ pub struct StyledNode<'a> {
 }
 
 /// TODO: Fix this garbage
-impl StyledNode<'_> {
+impl<'a> StyledNode<'a> {
     pub fn value(&self, name: &str) -> Option<Value> {
         self.specified_values.get(name).cloned()
     }
