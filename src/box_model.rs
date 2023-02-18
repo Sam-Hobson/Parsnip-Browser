@@ -1,6 +1,6 @@
 // CSS box model. All sizes are in px.
 
-use crate::style::css::{StyledNode, Unit};
+use crate::style::css::{StyledNode, Unit, Value};
 
 #[derive(Default)]
 struct Dimensions {
@@ -109,7 +109,30 @@ impl<'a> LayoutBox<'a> {
         let padding_left = style.lookup("padding-left", "padding", &zero);
         let padding_right = style.lookup("padding-right", "padding", &zero);
 
-        // ...
+        let total = [
+            &margin_left,
+            &margin_right,
+            &border_left,
+            &border_right,
+            &padding_left,
+            &padding_right,
+            &width,
+        ]
+        .iter()
+        .map(|v| v.to_px())
+        .sum();
+
+        // If width is not auto and the total is wider than the container, treat auto margins as 0.
+        if width != auto && total > containing_block.content.width {
+            if margin_left == auto {
+                margin_left = Length(0.0, Px);
+            }
+            if margin_right == auto {
+                margin_right = Length(0.0, Px);
+            }
+        }
+
+        let underflow = containing_block.content.width - total;
     }
 }
 
