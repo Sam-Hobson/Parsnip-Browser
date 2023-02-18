@@ -94,11 +94,11 @@ impl<'a> LayoutBox<'a> {
         let style = self.get_style_node();
 
         // `width` has initial value `auto`.
-        let auto = Keyword("auto".to_string());
+        let auto = Value::Keyword("auto".to_string());
         let mut width = style.value("width").unwrap_or(auto.clone());
 
         // margin, border, and padding have initial value 0.
-        let zero = Length(0.0, Unit::Px);
+        let zero = Value::Length(0.0, Unit::Px);
 
         let mut margin_left = style.lookup("margin-left", "margin", &zero);
         let mut margin_right = style.lookup("margin-right", "margin", &zero);
@@ -125,14 +125,55 @@ impl<'a> LayoutBox<'a> {
         // If width is not auto and the total is wider than the container, treat auto margins as 0.
         if width != auto && total > containing_block.content.width {
             if margin_left == auto {
-                margin_left = Length(0.0, Px);
+                margin_left = Value::Length(0.0, Unit::Px);
             }
             if margin_right == auto {
-                margin_right = Length(0.0, Px);
+                margin_right = Value::Length(0.0, Unit::Px);
             }
         }
 
         let underflow = containing_block.content.width - total;
+
+        // TODO: Understand this shit
+        match (width == auto, margin_left == auto, margin_right == auto) {
+            // If the values are overconstrained, calculate margin_right.
+            (false, false, false) => {
+                margin_right = Value::Length(margin_right.to_px() + underflow, Unit::Px);
+            }
+
+            // If exactly one size is auto, its used value follows from the equality.
+            (false, false, true) => {
+                margin_right = Value::Length(underflow, Unit::Px);
+            }
+            (false, true, false) => {
+                margin_left = Value::Length(underflow, Unit::Px);
+            }
+
+            // If width is set to auto, any other auto values become 0.
+            (true, _, _) => {
+                if margin_left == auto {
+                    margin_left = Value::Length(0.0, Unit::Px);
+                }
+                if margin_right == auto {
+                    margin_right = Value::Length(0.0, Unit::Px);
+                }
+
+                if underflow >= 0.0 {
+                    // Expand width to fill the underflow.
+                    width = Value::Length(underflow, Unit::Px);
+                } else {
+                    // Width can't be negative. Adjust the right margin instead.
+                    width = Value::Length(0.0, Unit::Px);
+                    margin_right = Value::Length(margin_right.to_px() + underflow, Unit::Px);
+                }
+            }
+
+            // If margin-left and margin-right are both auto, their used values are equal.
+            (false, true, true) => {
+                margin_left = Value::Length(underflow / 2.0, Unit::Px);
+                margin_right = Value::Length(underflow / 2.0, Unit::Px);
+            }
+        }
     }
 }
 
