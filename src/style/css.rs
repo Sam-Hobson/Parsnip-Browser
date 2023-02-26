@@ -49,7 +49,7 @@ pub struct Declaration {
 pub type PropertyMap = HashMap<String, Value>;
 
 /// What type of value is accepted for a declaration?
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Value {
     Keyword(String),
     Length(f32, Unit),
@@ -66,13 +66,13 @@ impl Value {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Unit {
     Px,
 }
 
 /// Colour in rgba
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Colour {
     pub r: u8,
     pub g: u8,

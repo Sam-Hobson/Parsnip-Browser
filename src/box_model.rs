@@ -116,7 +116,7 @@ impl<'a> LayoutBox<'a> {
         let padding_left = style.lookup("padding-left", "padding", &zero);
         let padding_right = style.lookup("padding-right", "padding", &zero);
 
-        let total = [
+        let total: f32 = [
             &margin_left,
             &margin_right,
             &border_left,
