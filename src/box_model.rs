@@ -47,6 +47,13 @@ impl<'a> LayoutBox<'a> {
         }
     }
 
+    fn get_style_node(&self) -> &'a StyledNode<'a> {
+        match self.box_type {
+            BoxType::BlockNode(n) | BoxType::InlineNode(n) => n,
+            BoxType::AnonymousBlock => panic!("Anonymous block box has no style node"),
+        }
+    }
+
     /// TODO: Understand this shit.
     ///
     /// This is intentionally simplified in a number of ways from the standard CSS box generation algorithm. For example, it doesn't handle the case where an inline box contains a block-level child. Also, it generates an unnecessary anonymous box if a block-level node has only inline children.

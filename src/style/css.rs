@@ -105,6 +105,11 @@ impl<'a> StyledNode<'a> {
             _ => Display::Inline,
         }
     }
+
+    pub fn lookup(&self, key: &str, key_2: &str, default_val: &Value) -> Value {
+        self.value(key)
+            .unwrap_or_else(|| self.value(key_2).unwrap_or_else(|| default_val.clone()))
+    }
 }
 
 /// Labels the specifier for a node. Stores id count, class count, and then tag count.
