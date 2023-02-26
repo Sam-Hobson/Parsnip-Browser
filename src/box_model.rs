@@ -134,7 +134,7 @@ impl<'a> LayoutBox<'a> {
 
         let underflow = containing_block.content.width - total;
 
-        // TODO: Understand this shit
+        // TODO: Refactor this.
         match (width == auto, margin_left == auto, margin_right == auto) {
             // If the values are overconstrained, calculate margin_right.
             (false, false, false) => {
@@ -150,11 +150,11 @@ impl<'a> LayoutBox<'a> {
             }
 
             // If width is set to auto, any other auto values become 0.
-            (true, _, _) => {
-                if margin_left == auto {
+            (true, left_auto, right_auto) => {
+                if left_auto {
                     margin_left = Value::Length(0.0, Unit::Px);
                 }
-                if margin_right == auto {
+                if right_auto {
                     margin_right = Value::Length(0.0, Unit::Px);
                 }
 
@@ -174,6 +174,37 @@ impl<'a> LayoutBox<'a> {
                 margin_right = Value::Length(underflow / 2.0, Unit::Px);
             }
         }
+    }
+
+    fn calculate_block_position(&mut self, containing_block: Dimensions) {
+        let style = self.get_style_node();
+        let d = &mut self.dims;
+
+        // margin, border, and padding have initial value 0.
+        let zero = Value::Length(0.0, Unit::Px);
+
+        // If margin-top or margin-bottom is `auto`, the used value is zero.
+        d.margin.top = style.lookup("margin-top", "margin", &zero).to_px();
+        d.margin.bottom = style.lookup("margin-bottom", "margin", &zero).to_px();
+
+        d.border.top = style
+            .lookup("border-top-width", "border-width", &zero)
+            .to_px();
+        d.border.bottom = style
+            .lookup("border-bottom-width", "border-width", &zero)
+            .to_px();
+
+        d.padding.top = style.lookup("padding-top", "padding", &zero).to_px();
+        d.padding.bottom = style.lookup("padding-bottom", "padding", &zero).to_px();
+
+        d.content.x = containing_block.content.x + d.margin.left + d.border.left + d.padding.left;
+
+        // Position the box below all the previous boxes in the container.
+        d.content.y = containing_block.content.height
+            + containing_block.content.y
+            + d.margin.top
+            + d.border.top
+            + d.padding.top;
     }
 }
 
