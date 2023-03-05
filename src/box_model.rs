@@ -2,7 +2,7 @@
 
 use crate::style::css::{StyledNode, Unit, Value};
 
-#[derive(Default)]
+#[derive(Default, Clone, Copy)]
 struct Dimensions {
     /// Position of the content area relative to the document origin
     content: Rect,
@@ -16,7 +16,7 @@ struct Dimensions {
 /// Rect is short for Rectangle :)
 /// It is a cartesian shape :)
 /// This is a largely immutable object :) TODO: Verify
-#[derive(Default)]
+#[derive(Default, Clone, Copy)]
 struct Rect {
     x: f32,
     y: f32,
@@ -24,7 +24,7 @@ struct Rect {
     height: f32,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone, Copy)]
 struct EdgeSizes {
     left: f32,
     right: f32,
@@ -246,10 +246,16 @@ impl<'a> LayoutBox<'a> {
     fn layout_block_children(&mut self) {
         let d = &mut self.dims;
 
-        for  c in &mut self.children {
+        for c in &mut self.children {
             c.layout(*d);
             // Track the height so each child is laid out below the previous content.
             d.content.height += c.dims.margin_box().height;
+        }
+    }
+
+    fn calculate_block_height(&mut self) {
+        if let Some(Value::Length(h, Unit::Px)) = self.get_style_node().value("height") {
+            self.dims.content.height = h;
         }
     }
 }
