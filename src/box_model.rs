@@ -15,6 +15,7 @@ struct Dimensions {
 
 /// Rect is short for Rectangle :)
 /// It is a cartesian shape :)
+/// This is a largely immutable object :) TODO: Verify
 #[derive(Default)]
 struct Rect {
     x: f32,
@@ -36,6 +37,34 @@ struct LayoutBox<'a> {
     dims: Dimensions,
     box_type: BoxType<'a>,
     children: Vec<LayoutBox<'a>>,
+}
+
+impl Dimensions {
+    // The area covered by the content area & its padding.
+    fn padding_box(self) -> Rect {
+        self.content.expanded_by(self.padding)
+    }
+
+    // Area covered by the content area plus padding and borders.
+    fn border_box(self) -> Rect {
+        self.padding_box().expanded_by(self.border)
+    }
+
+    // The area covered by the content area plus padding, borders, and margin.
+    fn margin_box(self) -> Rect {
+        self.border_box().expanded_by(self.margin)
+    }
+}
+
+impl Rect {
+    fn expanded_by(self, edge: EdgeSizes) -> Rect {
+        Rect {
+            x: self.x - edge.left,
+            y: self.y - edge.top,
+            width: self.width + edge.left + edge.right,
+            height: self.height + edge.top + edge.bottom
+        }
+    }
 }
 
 impl<'a> LayoutBox<'a> {
@@ -212,6 +241,16 @@ impl<'a> LayoutBox<'a> {
             + d.margin.top
             + d.border.top
             + d.padding.top;
+    }
+
+    fn layout_block_children(&mut self) {
+        let d = &mut self.dims;
+
+        for  c in &mut self.children {
+            c.layout(*d);
+            // Track the height so each child is laid out below the previous content.
+            d.content.height += c.dims.margin_box().height;
+        }
     }
 }
 
